@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🧧 开工大吉 · 红包开喜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            background: linear-gradient(145deg, #c72e1e 0%, #e64d2e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 微信提示遮罩层 */
+        .wechat-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: 20px;
+        }
+
+        .wechat-mask.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mask-content {
+            background: #fff9e6;
+            max-width: 340px;
+            width: 100%;
+            border-radius: 48px 48px 36px 36px;
+            padding: 2rem 1.5rem 2rem;
+            text-align: center;
+            position: relative;
+            border: 4px solid #fdba3a;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
+            animation: maskPop 0.4s ease-out;
+        }
+
+        @keyframes maskPop {
+            0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .mask-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 28px;
+            color: #b45a2a;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #fcedcf;
+            border: 2px solid #eba847;
+            transition: all 0.1s;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        .mask-close:active {
+            background: #f5d6a0;
+            transform: scale(0.95);
+        }
+
+        .mask-icon {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mask-content h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #b43f1a;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 0 #ffd58c;
+        }
+
+        .mask-content p {
+            font-size: 1.2rem;
+            color: #5a3a1a;
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+
+        /* 箭头指示区域 */
+        .arrow-guide {
+            position: relative;
+            margin: 1.5rem 0 1rem;
+            padding: 1rem;
+            background: #fef0cf;
+            border-radius: 30px;
+            border: 2px dashed #eba847;
+        }
+
+        .arrow-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.3rem;
+            color: #b43f1a;
+            font-weight: 600;
+        }
+
+        .arrow-icon {
+            font-size: 2.5rem;
+            animation: arrowMove 1.2s infinite alternate ease-in-out;
+        }
+
+        .three-dots {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 2rem;
+            font-weight: 800;
+            border: 2px solid #b43f1a;
+            box-shadow: 0 4px 0 #8b3a1a;
+            display: inline-block;
+            margin: 0 4px;
+        }
+
+        @keyframes arrowMove {
+            0% { transform: translateX(-8px) rotate(-10deg); }
+            100% { transform: translateX(8px) rotate(10deg); }
+        }
+
+        .browser-text {
+            background: #c93f3f;
+            color: #ffec9e;
+            padding: 0.8rem 1.2rem;
+            border-radius: 40px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border: 2px solid #fbbf24;
+            box-shadow: 0 5px 0 #7a2d1a;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+
+        .mask-footer {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            color: #a55a2a;
+        }
+
+        .mask-btn {
+            background: linear-gradient(145deg, #fec153, #fea62a);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #3e240a;
+            border: 2px solid #ffd58c;
+            box-shadow: 0 5px 0 #a4561c;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+            transition: transform 0.06s ease;
+        }
+
+        .mask-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #a4561c;
+        }
+
+        /* 红包卡片 */
+        .redpacket-card {
+            background: linear-gradient(165deg, #fdd14b 0%, #feb22a 100%);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 48px 48px 36px 36px;
+            box-shadow: 0 20px 30px rgba(140, 40, 0, 0.5), 0 12px 0 #b33812, inset 0 -4px 8px #ffe68f;
+            padding: 1.8rem 1.2rem 1.5rem;
+            position: relative;
+            border: 3px solid #ffcd5a;
+            z-index: 10;
+        }
+
+        /* 锦缎封口 */
+        .redpacket-card::before {
+            content: "";
+            position: absolute;
+            top: -12px;
+            left: 15%;
+            width: 70%;
+            height: 30px;
+            background: linear-gradient(90deg, #fec153, #ffdb7c, #fec153);
+            border-radius: 60% 60% 30% 30%;
+            box-shadow: 0 6px 0 #b44814;
+            z-index: 5;
+        }
+
+        /* 绳结 */
+        .redpacket-card::after {
+            content: "🎀";
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.8rem;
+            filter: drop-shadow(0 6px 4px #7b3d12);
+            z-index: 20;
+            text-shadow: 0 2px 0 #ffd58c;
+        }
+
+        /* 祝福语区域 */
+        .bless-area {
+            text-align: center;
+            margin: 0.2rem 0 1.2rem;
+            padding: 0.8rem 0.5rem;
+            background: rgba(255, 248, 225, 0.9);
+            border-radius: 60px;
+            border: 2px solid #faa83a;
+            box-shadow: inset 0 2px 10px #ffe29e, 0 6px 0 #aa4118;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #a1350a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            white-space: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            backdrop-filter: blur(4px);
+            min-height: 60px;
+        }
+
+        .bless-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bless-area span {
+            background: #ffeaa8;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 1.6rem;
+            border: 2px solid #e6891a;
+            box-shadow: 0 3px 0 #b4521a;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+
+        .bless-area #blessTextContent {
+            display: inline-block;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        /* 开红包区域 */
+        #beforeOpenSection {
+            display: block;
+            text-align: center;
+        }
+
+        /* 开按钮 */
+        .open-btn {
+            background: radial-gradient(circle at 35% 25%, #ffe878, #e69928);
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            font-weight: 900;
+            color: #e62b1a;
+            text-shadow: 0 3px 0 #fff2b2, 0 6px 10px #aa3812;
+            border: 6px solid #ffe894;
+            box-shadow: 0 14px 0 #b63c14, 0 20px 25px #a13510;
+            cursor: pointer;
+            transition: transform 0.08s ease;
+            margin: 0.5rem auto;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .open-btn:active {
+            transform: scale(0.94) translateY(10px);
+            box-shadow: 0 6px 0 #b63c14, 0 15px 20px #a13510;
+        }
+
+        .open-hint {
+            color: #fff7dc;
+            font-weight: 600;
+            text-shadow: 0 2px 0 #a13512;
+            margin: 1rem 0 0.8rem;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        /* 第二阶段卡片 */
+        #afterOpenSection {
+            display: none;
+        }
+
+        .prize-card {
+            background: #fffcf0;
+            border-radius: 60px 60px 40px 40px;
+            padding: 1.8rem 1.2rem;
+            border: 3px solid #fcb63e;
+            box-shadow: 0 16px 0 #b44f1a, inset 0 0 0 4px #ffecb0;
+            text-align: center;
+            animation: cardPop 0.4s ease-out forwards;
+        }
+
+        @keyframes cardPop {
+            0% { opacity: 0; transform: scale(0.9) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .glow-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #b84212;
+            text-shadow: 0 2px 0 #ffcd7e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+            white-space: nowrap;
+        }
+
+        .glow-title span {
+            font-size: 2.4rem;
+            flex-shrink: 0;
+        }
+
+        /* 复制按钮 */
+        .copy-luxury-btn {
+            background: linear-gradient(145deg, #fed056, #fea62a);
+            border: none;
+            padding: 1.5rem 0.5rem;
+            border-radius: 100px;
+            width: 100%;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #3e240a;
+            text-shadow: 0 2px 0 #ffe48b;
+            box-shadow: 0 10px 0 #a64918, 0 4px 15px #f7a62b;
+            cursor: pointer;
+            transition: transform 0.06s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border: 3px solid #ffec9e;
+            margin: 1rem 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            white-space: nowrap;
+        }
+
+        .copy-luxury-btn span {
+            flex-shrink: 0;
+        }
+
+        .copy-luxury-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 4px 0 #a64918;
+        }
+
+        .alipay-badge {
+            background: #b13d1a;
+            color: #ffe99e;
+            font-size: 1.2rem;
+            padding: 0.8rem;
+            border-radius: 50px;
+            border: 2px solid #fcac3c;
+            box-shadow: 0 5px 0 #732f12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        .alipay-badge span {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        /* 特效画布 */
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Toast提示 */
+        .toast-message {
+            background: rgba(40, 25, 8, 0.95);
+            color: #ffdb8e;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid #f7b242;
+            box-shadow: 0 5px 0 #5f3c1a, 0 5px 15px rgba(0,0,0,0.3);
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+            max-width: 90%;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .toast-message.show {
+            opacity: 1;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 1.2rem;
+            color: #fff3c9;
+            font-size: 1rem;
+            text-shadow: 0 2px 2px #aa2e12;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- 微信提示遮罩层 -->
+    <div id="wechatMask" class="wechat-mask">
+        <div class="mask-content">
+            <div class="mask-close" id="closeMaskBtn">✕</div>
+            <div class="mask-icon">🧧</div>
+            <h3>微信内无法跳转</h3>
+            <p>请点击右上角菜单</p>
+            
+            <!-- 箭头指示区域 -->
+            <div class="arrow-guide">
+                <div class="arrow-animation">
+                    <span class="arrow-icon">👉</span>
+                    <span class="three-dots">···</span>
+                    <span class="arrow-icon">👈</span>
+                </div>
+                <div class="browser-text">
+                    🌐 在浏览器打开 🌐
+                </div>
+            </div>
+
+            <p style="font-size:1rem; color:#7b4a1a;">点击"开"自动复制口令</p>
+            
+            <button class="mask-btn" id="understoodBtn">我知道了</button>
+            <div class="mask-footer">✨ 仅提示一次 ✨</div>
+        </div>
+    </div>
+
+    <!-- 特效画布 -->
+    <canvas id="fireworksCanvas"></canvas>
+
+    <!-- Toast提示 -->
+    <div id="toast" class="toast-message">✨ 口令已复制</div>
+
+    <!-- 主红包卡片 -->
+    <div class="redpacket-card">
+        <!-- 祝福语区域 -->
+        <div class="bless-area" id="blessText">
+            <span>🧧</span>
+            <span id="blessTextContent">新年快乐</span>
+            <span>🧧</span>
+        </div>
+
+        <!-- 第一阶段：开红包 -->
+        <div id="beforeOpenSection">
+            <div class="open-btn-wrapper">
+                <div class="open-btn" id="openRedPacketBtn">開</div>
+            </div>
+            <div class="open-hint">轻触开启 · 好运自来</div>
+        </div>
+
+        <!-- 第二阶段：复制卡片 -->
+        <div id="afterOpenSection">
+            <div class="prize-card">
+                <div class="glow-title">
+                    <span>🏆</span> 恭喜发财 <span>🏆</span>
+                </div>
+                <button class="copy-luxury-btn" id="copyFinalBtn">
+                    <span>📋</span> 领数字口令 <span>💰</span>
+                </button>
+                <div class="alipay-badge">
+                    <span>🧧</span> 88888888 <span>🧧</span>
+                </div>
+                <div style="font-size:0.95rem; margin-top:1rem; color:#a54316; white-space:nowrap;">
+                    点击复制口令 · 打开支付宝粘贴
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            🧨 万事顺遂 · 红包拿来 🧨
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 口令 ----------
+            const FULL_ALIPAY_PHRASE = "https://www.wmslz.com/s/itV2W9p874k#❤服枝❤此消息，打开支f.u寳搜索，体验哄胞小程序  Q:/6 ZH0856 $596";
+            const DIGITAL_PASSPHRASE = "88888888";
+
+            // 祝福语
+            const blessings = [
+                "🐎 马到成功", "🧧 财源广进", "🌟 万事如意", "🔥 红红火火",
+                "🍊 大吉大利", "💎 金玉满堂", "🎋 步步高升", "🧨 开工大吉",
+                "🏮 福星高照", "💰 财源滚滚", "⭐ 心想事成", "🎉 好运连连"
+            ];
+
+            // DOM 元素
+            const blessTextContent = document.getElementById('blessTextContent');
+            const beforeSection = document.getElementById('beforeOpenSection');
+            const afterSection = document.getElementById('afterOpenSection');
+            const openBtn = document.getElementById('openRedPacketBtn');
+            const copyBtn = document.getElementById('copyFinalBtn');
+            const toastEl = document.getElementById('toast');
+            
+            // 微信遮罩元素
+            const wechatMask = document.getElementById('wechatMask');
+            const closeMaskBtn = document.getElementById('closeMaskBtn');
+            const understoodBtn = document.getElementById('understoodBtn');
+
+            // 状态管理 - 记录是否已提示过
+            let hasShownWechatTip = false;
+
+            // 画布特效
+            const canvas = document.getElementById('fireworksCanvas');
+            let ctx = canvas.getContext('2d');
+            let particles = [];
+            let animationFrame = null;
+
+            // 设置画布尺寸
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // 检测微信浏览器
+            function isWechat() {
+                const ua = navigator.userAgent.toLowerCase();
+                return ua.indexOf('micromessenger') !== -1;
+            }
+
+            // 显示微信遮罩（只显示一次）
+            function showWechatMaskOnce() {
+                if (isWechat() && !hasShownWechatTip) {
+                    wechatMask.classList.add('show');
+                    document.body.style.overflow = 'hidden'; // 禁止背景滚动
+                    hasShownWechatTip = true; // 标记已显示
+                    
+                    // 注意：这里不再自动复制口令，避免干扰功能
+                }
+            }
+
+            // 隐藏微信遮罩
+            function hideWechatMask() {
+                wechatMask.classList.remove('show');
+                document.body.style.overflow = ''; // 恢复背景滚动
+            }
+
+            // 关闭遮罩事件
+            closeMaskBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                hideWechatMask();
+            });
+            
+            understoodBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                hideWechatMask();
+            });
+            
+            // 点击遮罩背景关闭
+            wechatMask.addEventListener('click', function(e) {
+                if (e.target === wechatMask) {
+                    hideWechatMask();
+                }
+            });
+
+            // 粒子类
+            class Particle {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = (Math.random() - 0.5) * 8;
+                    this.vy = (Math.random() - 0.7) * 8 - 4;
+                    this.size = Math.random() * 16 + 12;
+                    this.alpha = 0.9;
+                    this.gravity = 0.2;
+                    this.friction = 0.98;
+                    const chars = ['💰', '🧧', '🏆', '🎁', '✨', '🌟', '💥'];
+                    this.char = chars[Math.floor(Math.random() * chars.length)];
+                }
+                
+                update() {
+                    this.vx *= this.friction;
+                    this.vy *= this.friction;
+                    this.vy += this.gravity;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.alpha *= 0.98;
+                    return this.alpha > 0.05 && this.y < canvas.height + 100;
+                }
+                
+                draw() {
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha;
+                    ctx.font = `${this.size}px 'PingFang SC', 'Segoe UI Emoji', 'Apple Color Emoji'`;
+                    ctx.fillStyle = '#ffd966';
+                    ctx.shadowColor = '#ff9f2e';
+                    ctx.shadowBlur = 12;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(this.char, this.x, this.y);
+                    ctx.restore();
+                }
+            }
+
+            // 启动特效
+            function startFireworks() {
+                const count = window.innerWidth < 768 ? 40 : 60;
+                for (let i = 0; i < count; i++) {
+                    let x = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+                    let y = window.innerHeight / 2 - 30 + (Math.random() - 0.5) * 150;
+                    particles.push(new Particle(x, y));
+                }
+                
+                if (!animationFrame) {
+                    animationFrame = requestAnimationFrame(drawParticles);
+                }
+            }
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    if (!particles[i].update()) {
+                        particles.splice(i, 1);
+                    } else {
+                        particles[i].draw();
+                    }
+                }
+                
+                if (particles.length > 0) {
+                    animationFrame = requestAnimationFrame(drawParticles);
+                } else {
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame = null;
+                }
+            }
+
+            // 显示toast
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(window.toastTimer);
+                window.toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, 1500);
+            }
+
+            // 复制函数 - 修复链接复制问题
+            function copyText(text, successMsg) {
+                // 确保text是字符串
+                const textToCopy = String(text);
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showToast(successMsg);
+                    }).catch((err) => {
+                        console.log('Clipboard error:', err);
+                        fallbackCopy(textToCopy, successMsg);
+                    });
+                } else {
+                    fallbackCopy(textToCopy, successMsg);
+                }
+                
+                function fallbackCopy(t, msg) {
+                    const ta = document.createElement('textarea');
+                    ta.value = t;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    ta.style.top = '0';
+                    ta.style.opacity = '0';
+                    ta.style.width = '1px';
+                    ta.style.height = '1px';
+                    document.body.appendChild(ta);
+                    
+                    // 针对iOS的特殊处理
+                    ta.contentEditable = true;
+                    ta.readOnly = false;
+                    
+                    // 选择文本
+                    ta.focus();
+                    ta.setSelectionRange(0, t.length);
+                    
+                    try { 
+                        const success = document.execCommand('copy');
+                        if (success) {
+                            showToast(msg);
+                        } else {
+                            showToast('❌ 复制失败');
+                        }
+                    } catch (e) { 
+                        console.log('Fallback copy error:', e);
+                        showToast('❌ 复制失败'); 
+                    }
+                    
+                    document.body.removeChild(ta);
+                }
+            }
+
+            // 尝试跳转支付宝
+            function tryOpenAlipay() {
+                const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                
+                if (isiOS) {
+                    window.location.href = 'alipay://';
+                } else {
+                    window.location.href = 'alipays://';
+                    
+                    setTimeout(() => {
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = 'intent://platformapi/startapp?saId=10000007#Intent;scheme=alipays;package=com.eg.android.AlipayGphone;end;';
+                        document.body.appendChild(iframe);
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                        }, 500);
+                    }, 100);
+                }
+            }
+
+            // 随机祝福
+            function setRandomBless() {
+                const idx = Math.floor(Math.random() * blessings.length);
+                blessTextContent.textContent = blessings[idx];
+                
+                const blessArea = document.querySelector('.bless-area');
+                if (blessArea.scrollWidth > blessArea.clientWidth) {
+                    blessArea.style.fontSize = '1.3rem';
+                } else {
+                    blessArea.style.fontSize = '1.5rem';
+                }
+            }
+            setRandomBless();
+
+            // 页面加载时只显示一次微信提示（不复制口令）
+            window.addEventListener('load', function() {
+                showWechatMaskOnce();
+            });
+
+            // 点击“开”按钮
+            openBtn.addEventListener('click', function(e) {
+                console.log('开按钮被点击');
+                
+                startFireworks();
+                
+                // 复制完整口令 - 修复链接复制
+                copyText(FULL_ALIPAY_PHRASE, '📋 口令已复制');
+                
+                beforeSection.style.display = 'none';
+                afterSection.style.display = 'block';
+
+                setTimeout(() => {
+                    tryOpenAlipay();
+                }, 200);
+
+                // 不再重复显示微信提示
+            });
+
+            // 复制数字口令
+            copyBtn.addEventListener('click', function(e) {
+                console.log('复制按钮被点击');
+                
+                // 复制数字口令
+                copyText(DIGITAL_PASSPHRASE, '🔢 数字口令已复制');
+                
+                setTimeout(() => {
+                    tryOpenAlipay();
+                }, 150);
+                
+                for (let i = 0; i < 15; i++) {
+                    let x = window.innerWidth / 2 + (Math.random() - 0.5) * 150;
+                    let y = window.innerHeight / 2;
+                    particles.push(new Particle(x, y));
+                }
+                if (!animationFrame) {
+                    animationFrame = requestAnimationFrame(drawParticles);
+                }
+
+                // 不再重复显示微信提示
+            });
+
+        })();
+    </script>
+</body>
+</html>
